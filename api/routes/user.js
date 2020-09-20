@@ -173,17 +173,17 @@ router.delete("/:userId", (req, res, next) => {
 
 router.post("/login",(req,res , next)=>{
   pool.query(
-    'SELECT * FROM tbl_user WHERE _email = ?',
+    'select _id,_name, _email, _password from tbl_user where _email = ?',
     [req.body.email],
-    function(user, fields) {
-    console.log(user)
+    function(error,user, fields) {
+    console.log(user[0])
    
     if (user==null) {
       return res.status(401).json({
         message: "ser dosent exists"
       });
     }
-    bcrypt.compare(req.body.password,user[0].password,(err,result)=>{
+    bcrypt.compare(req.body.password,user[0]._password,(err,result)=>{
       if (err){
         return res.status(401).json({
           message: "aexists"
@@ -399,4 +399,3 @@ router.post('/resetpassword', function(req, res, next) {
 
 
 module.exports = router;
-
