@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
  
-const User = require("../models/user");
+
 const Auth= require("../auth/authorization");
 
-const Personaldetails = require("../models/personaldetails");
+
 
 router.post("/:email",Auth,(req, res,next) => {
 
@@ -48,37 +48,7 @@ console.log(req.body)
        
       // }else
 
-      // pool.query(
-      //   'update tbl_user set _username=?, _gender=?,_birthdate=?,_age=?,_height=?,_country=?,_religion=?,_martialstats=?, _langages=?  where _email = ?',
-      //   [
-        
-      //     req.body.name,
-      //     req.body.gender, 
-      //     req.body.birthdate,
-      //     req.body.age,
-      //     req.body.height,
-      //     req.body.country,
-      //     req.body.religion,
-      //     req.body.martialstats,
-      //     req.body.languages,
-      //     req.params.email,
-        
-      //   ],
-      //   (error, results, fields) => {
-      //     if(error){
-      //       res.status(500).json({
-      //         error: error
-      //       });
-
-      //     }else{
-         
-      //       res.status(201).json({
-      //         message: result
-             
-      //       });
-      //     }
-      //   });
-
+      // 
       // {
     
    });
@@ -102,7 +72,45 @@ console.log(req.body)
             
         
       });   
-    })
+    });
+
+
+    router.patch("/:email",(req,res,next)=>{
+      pool.query(
+          'update tbl_user set _username=?, _gender=?,_birthdate=?,_age=?,_height=?,_country=?,_religion=?,_martialstats=?, _langages=?  where _email = ?',
+          [
+          
+            req.body.name,
+            req.body.gender, 
+            req.body.birthdate,
+            req.body.age,
+            req.body.height,
+            req.body.country,
+            req.body.religion,
+            req.body.martialstats,
+            req.body.languages,
+            req.params.email
+          
+          ],
+          (error, results, fields) => {
+            if(error){
+              res.status(500).json({
+                error: error
+              });
+  
+            }else{
+           
+              res.status(201).json({
+                message: results
+               
+              });
+            }
+          });
+  
+   
+       })
+   
+   
 
 
 

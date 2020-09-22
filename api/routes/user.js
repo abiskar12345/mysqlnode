@@ -8,21 +8,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-// const User = require("../models/user");
 const multer = require('multer'); 
 const  checkToken = require("../auth/token_validation");
-// const Likedprofile = require("../models/likedprofile");
-// const Personaldetails = require("../models/personaldetails");
-// const Blockedprofile = require("../models/blockedprofile");
-// const Token = require("../models/verificationtoken");
-// const Personaldetails = require("../models/personaldetails");
-// const Partnerperferred = require("../models/partnerperferred");
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, './uploads/');
   },
   filename: function(req, file, cb) {
-    cb(null, new Date().toISOString() + file.originalname);
+    cb(null, Date.now() + file.originalname);
   }
 });
 
@@ -53,7 +46,7 @@ router.post("/signup",  (req, res, next) => {
     'select * from tbl_user where _email = ?',
     [req.body.email],
     function(user, fields) {
-      if (user) {
+      if (user) { 
         return res.status(409).json({
           message: "Mail already exists"
         });
@@ -176,7 +169,7 @@ router.post("/login",(req,res , next)=>{
     'select _id,_name, _email, _password from tbl_user where _email = ?',
     [req.body.email],
     function(error,user, fields) {
-    console.log(user[0])
+    console.log(user)
    
     if (user==null) {
       return res.status(401).json({
@@ -214,93 +207,54 @@ router.post("/login",(req,res , next)=>{
   })
   
 
-});
+});  
+router.post("/profileimage/:email", upload.single('profileImage'), (req, res, next) => {
+  console.log(req.file.path)
+ pool.query(
+  
+  'update tbl_user set _profileImage=? where _email = ?',
+  [
+    req.file.path ,
+    req.params.email
+  ],
+  (error, results, fields) => {
+    if (error) {
+      res.status(500).json({
+           err: error
+          });
+    }
+   else{
+ ;
 
-
-// router.get("/:email", (req, res, next) => {
-//   pool.query(
-//     'select * from tbl_user where _email = ?',
-//     [req.body,email],
-//     function(err,users, fields) {
-//     if (err) {
-//       console.log(err);
-//       // res.status(500).json({
-//       //    err: err
-//       //  });
-//   } else {
-//     console.log( users);
-//       // res.status(201).json({
-//       //    data:users
-//       //  });
-
-//   //     Blockedprofile.find({profileiD: users._id})
-//   //     .exec(function(err, block) {
-//   //       if (err) {
-//   //         console.log(err);
+    pool.query(
+  
+      'insert into profile_image( _email,_profileid, _image) values(?,?,?)',
+      [
+       
+        req.params.email,
+        req.body.userId.userId,
+         req.file.path 
+      ],
+      (error, result, fields) => {
+        if (error) {
+          res.status(500).json({
+               err: error
+              });
+        }
+       else{
+        return res.status(200).json({
+          message:results, 
+          message:result
           
-//   //       console.log('tfgftftfvt');
-        
-//   //         // res.status(500).json({
-//   //         //    err: err
-//   //         //  });
-//   //     } else {
-//   //       console.log('hi');
-          
-//   //         blocked=block[0];
-//   //         // res.status(201).json({
-//   //         //    data:users
-//   //         //  });
+        });
     
-   
-    
-//   //     User.find(
-//   //       {"_id": { "$nin":[block[0].blockedusers]} }
-//   //        )
-//   //     .populate({
-//   //      path:'personalDetail',
-//   //      model : 'Personaldetails',
-//   //      match: [{age:{ $gte: users.partnerperferred.loweraoge,
-//   //                $lte: users.partnerperferred.higherage}},
-//   //              {height:{ $gte: users.partnerperferred.lowerheight ,
-//   //               $lte: users.partnerperferred.higherheight}}]
-//   //               ,
-      
-//   //     })
-//   //    .populate("partnerperferred")
-//   //    .exec(function(error,success ) {
-//   //     if (error) {
-//   //       console.log(error);
-//   //       res.status(500).json({
-//   //          error: "error"
-//   //        });
-//   //     } else {
-//   //       // console.log(success);
-//   //       res.status(201).json({
-//   //          data:success
-//   //        });
-//   //      }
-//   //    })
+       }
+      }
+    ); 
 
-//   //   }
-
-//   // });
-  
-//     }
-//     });
-//   });
-  
-  
-router.post("/", upload.single('profileImage/:email'), (req, res, next) => {
-  
-  User.update({email: req.params.email},{$set: {image: req.path.image}}) 
-  .catch(err => {
-   console.log(err);
-   res.status(500).json({
-     error: err
-   });
- }); 
-  
-  
+   }
+  }
+); 
 });
 
 

@@ -1,18 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
-const {checkToken} = require("../auth/token_validation");
-
-
-
-router.post("/:email", (req, res, next) => {
+const Auth= require("../auth/authorization");
 
 
 
 
+router.post("/:email",(req, res, next) => {
         pool.query(
-          'insert into partner_perferred( _email,_lowerage, _higherage,_lowerheight,_higherheight,_country,_religion, _languages )  values(?,?,?,?,?,?) ',
-          [    
+          'insert into partner_perferred ( _email,_lowerage, _higherage,_lowerheight,_higherheight,_country,_religion, _languages,_occupation )  values (?,?,?,?,?,?,?,?,?) ',
+          [ req.params.email,   
             req.body.lowerage, 
             req.body.higherage,
             req.body.lowerheight,
@@ -20,7 +17,8 @@ router.post("/:email", (req, res, next) => {
             req.body.country,
             req.body.religion,
             req.body.languages,
-            req.params.email 
+            req.body.occupation
+            
           ],
           (error, results, fields) => {
     
@@ -31,45 +29,10 @@ router.post("/:email", (req, res, next) => {
             } 
            else{
             res.status(201).json({
-              message: "partnerdetails added"
+              message: results
             });
       }
-    });
-
-      
-      // else{
-
-
-      //   pool.query(
-      //     'update tbl_user set _lowerage=?, _higherage=?,_lowerheight=?,_higherheight=?,_country=?,_religion=?, _languages=? where _email = ?',
-      //     [
-      //       req.body.lowerage, 
-            // req.body.higherage,
-            // req.body.lowerheight,
-            // req.body.higherheight,
-            // req.body.country,
-            // req.body.religion,
-            // req.body.languages,
-            // req.params.email 
-      //     ],
-      //     (error, results, fields) => {
-      //       if (error) {
-      //         console.log(err);
-      //         res.status(500).json({
-      //           error: error
-      //       });
-      //       }
-      //       res.status(201).json({
-      //         message: results
-             
-      //       });
-      //     }
-      //   );
-      // }
-    
-
-  
-     
+    });     
     });
     router.get("/:email", (req, res, next) => {
       pool.query(
@@ -89,13 +52,36 @@ router.post("/:email", (req, res, next) => {
             
         
       });   
+    });
+
+  router.patch("/:email",(req,res,next)=>{
+   pool.query(
+          'update tbl_user set _lowerage=?, _higherage=?,_lowerheight=?,_higherheight=?,_country=?,_religion=?, _languages=? where _email = ?',
+          [
+            req.body.lowerage, 
+            req.body.higherage,
+            req.body.lowerheight,
+            req.body.higherheight,
+            req.body.country,
+            req.body.religion,
+            req.body.languages,
+            req.params.email 
+          ],
+          (error, results, fields) => {
+            if (error) {
+              console.log(err);
+              res.status(500).json({
+                error: error
+            });
+            }
+            res.status(201).json({
+              message: results
+             
+            });
+          }
+        );
+      
     })
-
-
-
-
-
-
 
 
 module.exports = router;
