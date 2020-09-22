@@ -7,25 +7,25 @@ const Auth= require("../auth/authorization");
 
 const Personaldetails = require("../models/personaldetails");
 
-router.post("/:email",(req, res,next) => {
+router.post("/:email",Auth,(req, res,next) => {
 
 // Personaldetails.find({ email: req.params.email })
 //     .exec()
 //     .then(user => {
 //       if (user.length < 1) {
 //         console.log("hii");
+console.log(req.body)
         pool.query(
           'insert into personal_details( _email,_name, _gender,_birthdate,_age,_height,_country,_religion,_martialstats, _langages)  values(?,?,?,?,?,?,?,?,?,?) ',
           [ 
             req.params.email,
-            req.body.name,,
+            req.body.name,
             req.body.gender, 
             req.body.birthdate,
             req.body.age,
             req.body.height,
-            req.bodycountry,
-            req.body.religion,
-            
+            req.body.country,
+            req.body.religion, 
             req.body.martialstats,
             req.body.languages
         ],function(error,result ){
@@ -52,12 +52,12 @@ router.post("/:email",(req, res,next) => {
       //   'update tbl_user set _username=?, _gender=?,_birthdate=?,_age=?,_height=?,_country=?,_religion=?,_martialstats=?, _langages=?  where _email = ?',
       //   [
         
-      //     req.body.name,,
+      //     req.body.name,
       //     req.body.gender, 
       //     req.body.birthdate,
       //     req.body.age,
       //     req.body.height,
-      //     req.bodycountry,
+      //     req.body.country,
       //     req.body.religion,
       //     req.body.martialstats,
       //     req.body.languages,
@@ -84,8 +84,24 @@ router.post("/:email",(req, res,next) => {
    });
    
 
-    router.put("/:email", (req, res, next) => {
-      
+    router.get("/:email", (req, res, next) => {
+      pool.query(
+        'select *  from personal_details where _email = ?',
+        [req.params.email],
+        function(error,user, fields) {
+        console.log(user)
+       
+        if (error) {
+          return res.status(401).json({
+            message: error
+          });
+        }
+            return res.status(200).json({
+              message:user, 
+            });
+            
+        
+      });   
     })
 
 

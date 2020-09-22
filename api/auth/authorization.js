@@ -1,16 +1,30 @@
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+require("dotenv").config();
 
-// module.exports = (req, res, next) => {
-//     try {
-//         const token = req.headers.authorization.slice(7);
-//         console.log(token);
-//         const decoded = jwt.verify(token, process.env.JWT_KEY);
-//         console.log(decoded);
-//         req.userData = decoded;
-//         next();
-//     } catch (error) {
-//         return res.status(401).json({
-//             message: 'Auth failed'
-//         });
-//     }
-// };
+module.exports =(req, res, next) => {
+        let token = req.headers.authorization;
+        if (token) {
+          // Remove Bearer from string
+          token = token.slice(7);
+          console.log(token);
+          jwt.verify(token,process.env.JWT_KEY, (err, decoded) => {
+            if (err) {
+              return res.json({
+                success: 0,
+                message: "Invalid Token..."
+              });  
+            } else {
+              console.log('jhjhjh')
+              req.decoded = decoded;
+              next();
+    
+            }
+          });
+        } else {
+          return res.json({
+            success: 0,
+            message: "Access Denied! Unauthorized User"
+          });
+        }
+      }
+    

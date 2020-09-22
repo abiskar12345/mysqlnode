@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const payment = require("../models/payment");
 const pool = require('../config/database');
 
 
@@ -22,8 +20,7 @@ router.post("/:email", (req, res, next) => {
                   req.params.email,
                   req.body.cardname,
                   hash,
-                  req.body.cardtype,
-                  
+                  req.body.cardtype,  
                   req.body.martialstats,
                   req.body.languages
               ],function(error,result ){

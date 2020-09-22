@@ -5,9 +5,9 @@ const pool = require('../config/database');
 
 router.post("", (req, res, next) => {
   pool.query(
-    'insert into blocked_profile( _blockedprofiles,_email) where(?,?) ',
+    'insert into blocked_profile( _blockedprofiles,_email)  values (?,?) ',
     [ 
-      req.body.blockedprofiles,
+      req.body.blockedprofile,
 
       req.body.email, 
     ],
@@ -28,7 +28,7 @@ router.post("", (req, res, next) => {
   });
 
 
-    router.get("/:email",(req,res,next)=>{
+ router.get("/:email",(req,res,next)=>{
       pool.query(
         'select * from blocked_profile where _email = ?',
         [req.body.email],

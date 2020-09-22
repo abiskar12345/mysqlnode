@@ -80,7 +80,7 @@ router.post("/signup",  (req, res, next) => {
                 } else{ 
                   var token =  crypto.randomBytes(16).toString('hex');
                   pool.query(
-                    'insert into tbl_token(_userId, token)  values(?,?)',
+                    'insert into tbl_token(_userId, token)  dhhggdf@ail.com(?,?)',
                     [ 
                       req.body.email,
                      token      
@@ -193,10 +193,10 @@ router.post("/login",(req,res , next)=>{
       if(result) {
     
        const token = jwt.sign({
-          email:user[0].email,
+          email:user[0]._email,
           userId: user[0]._id,
          
-        },'hahsh',{
+        },process.env.JWT_KEY,{
           expiresIn:"1h" 
         });
         return res.status(200).json({
@@ -217,77 +217,77 @@ router.post("/login",(req,res , next)=>{
 });
 
 
-router.get("/:email", (req, res, next) => {
-  pool.query(
-    'select * from tbl_user where _email = ?',
-    [req.body,email],
-    function(err,users, fields) {
-    if (err) {
-      console.log(err);
-      // res.status(500).json({
-      //    err: err
-      //  });
-  } else {
-    console.log( users);
-      // res.status(201).json({
-      //    data:users
-      //  });
+// router.get("/:email", (req, res, next) => {
+//   pool.query(
+//     'select * from tbl_user where _email = ?',
+//     [req.body,email],
+//     function(err,users, fields) {
+//     if (err) {
+//       console.log(err);
+//       // res.status(500).json({
+//       //    err: err
+//       //  });
+//   } else {
+//     console.log( users);
+//       // res.status(201).json({
+//       //    data:users
+//       //  });
 
-  //     Blockedprofile.find({profileiD: users._id})
-  //     .exec(function(err, block) {
-  //       if (err) {
-  //         console.log(err);
+//   //     Blockedprofile.find({profileiD: users._id})
+//   //     .exec(function(err, block) {
+//   //       if (err) {
+//   //         console.log(err);
           
-  //       console.log('tfgftftfvt');
+//   //       console.log('tfgftftfvt');
         
-  //         // res.status(500).json({
-  //         //    err: err
-  //         //  });
-  //     } else {
-  //       console.log('hi');
+//   //         // res.status(500).json({
+//   //         //    err: err
+//   //         //  });
+//   //     } else {
+//   //       console.log('hi');
           
-  //         blocked=block[0];
-  //         // res.status(201).json({
-  //         //    data:users
-  //         //  });
+//   //         blocked=block[0];
+//   //         // res.status(201).json({
+//   //         //    data:users
+//   //         //  });
     
    
     
-  //     User.find(
-  //       {"_id": { "$nin":[block[0].blockedusers]} }
-  //        )
-  //     .populate({
-  //      path:'personalDetail',
-  //      model : 'Personaldetails',
-  //      match: [{age:{ $gte: users.partnerperferred.loweraoge,
-  //                $lte: users.partnerperferred.higherage}},
-  //              {height:{ $gte: users.partnerperferred.lowerheight ,
-  //               $lte: users.partnerperferred.higherheight}}]
-  //               ,
+//   //     User.find(
+//   //       {"_id": { "$nin":[block[0].blockedusers]} }
+//   //        )
+//   //     .populate({
+//   //      path:'personalDetail',
+//   //      model : 'Personaldetails',
+//   //      match: [{age:{ $gte: users.partnerperferred.loweraoge,
+//   //                $lte: users.partnerperferred.higherage}},
+//   //              {height:{ $gte: users.partnerperferred.lowerheight ,
+//   //               $lte: users.partnerperferred.higherheight}}]
+//   //               ,
       
-  //     })
-  //    .populate("partnerperferred")
-  //    .exec(function(error,success ) {
-  //     if (error) {
-  //       console.log(error);
-  //       res.status(500).json({
-  //          error: "error"
-  //        });
-  //     } else {
-  //       // console.log(success);
-  //       res.status(201).json({
-  //          data:success
-  //        });
-  //      }
-  //    })
+//   //     })
+//   //    .populate("partnerperferred")
+//   //    .exec(function(error,success ) {
+//   //     if (error) {
+//   //       console.log(error);
+//   //       res.status(500).json({
+//   //          error: "error"
+//   //        });
+//   //     } else {
+//   //       // console.log(success);
+//   //       res.status(201).json({
+//   //          data:success
+//   //        });
+//   //      }
+//   //    })
 
-  //   }
+//   //   }
 
-  // });
+//   // });
   
-    }
-    });
-  });
+//     }
+//     });
+//   });
   
   
 router.post("/", upload.single('profileImage/:email'), (req, res, next) => {
@@ -338,64 +338,42 @@ router.patch('/:email',(req,res,next)=>{
   });  
 });
 
-
-router.post('/resetpassword', function(req, res, next) {
-  async.waterfall([
-    function(done) {
-      crypto.randomBytes(20, function(err, buf) {
-        var token = buf.toString('hex');
-        done(err, token);
-      });
-    },
-    function(token, done) {
-      User.findOne({ email: req.body.email }, function(err, user) {
-        if (!user) {
-          req.flash('error', 'No account with that email address exists.');
-          return res.redirect('/forgot');
-        }
-        user.passwordResetToken = token;
-        user.passwordResetExpires = Date.now() + 3600000; // 1 hour
-        user.save(function(err) {
-          done(err, token, user);
+router.get("/:email",(req,res,next)=>{
+  pool.query(
+    'select * from blocked_profile where _email = ?',
+    [req.body.email],
+    function(error, userBLOCKED, fields) {
+      if (error) {
+        return res.status(409).json({
+          message:error
         });
+      } 
+        pool.query(
+          'SELECT * FROM tbl_user WHERE _email NOT IN (SELECT _blockedprofiles FROM blocked_profile WHERE  _email = ?  IS NOT NULL )',
+          [req.params.email],
+          function(error, user, fields) {
+            if (error) {
+              return res.status(409).json({
+                message:error
+              });
+            } 
+            res.status(201).json({
+              data:user
+            });
+  
+          });
       });
-    },
-    function(token, user, done) {
-      var smtpTransport = nodemailer.createTransport('SMTP', {
-        // host: 'smtp.gmail.com',
-        // port: 587,
-        //   secure: false,
-        // requireTLS: true,
-         service: "Gmail",
-         port: 465,
        
-         auth: {
-           user: "amazingstudiosab@gmail.com", // generated ethereal user
-           pass: "", // generated ethereal password
-         }
-      });
-      var mailOptions = {
-        to: user.email,
-        from: 'amazingstudiosab@gmail.com',
-        subject: 'Node.js Password Reset',
-        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-          'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-      };
-      smtpTransport.sendMail(mailOptions, function(err) {
-        req.flash('info', 'An e-mail has been sent to ' + user.email + ' with further instructions.');
-        done(err, 'done');
-      });
-    }
-  ], function(err) {
-    if (err) return next(err);
-    res.redirect('/forgot');
-  });
+
+      
+    
 });
 
 
 
 
 
+
+
 module.exports = router;
+

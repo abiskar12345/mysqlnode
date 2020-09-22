@@ -12,8 +12,7 @@ router.post("/:email", (req, res, next) => {
 
         pool.query(
           'insert into partner_perferred( _email,_lowerage, _higherage,_lowerheight,_higherheight,_country,_religion, _languages )  values(?,?,?,?,?,?) ',
-          [ 
-             
+          [    
             req.body.lowerage, 
             req.body.higherage,
             req.body.lowerheight,
@@ -21,7 +20,7 @@ router.post("/:email", (req, res, next) => {
             req.body.country,
             req.body.religion,
             req.body.languages,
-            req.params.email, 
+            req.params.email 
           ],
           (error, results, fields) => {
     
@@ -35,8 +34,7 @@ router.post("/:email", (req, res, next) => {
               message: "partnerdetails added"
             });
       }
-    }
-  );
+    });
 
       
       // else{
@@ -45,14 +43,14 @@ router.post("/:email", (req, res, next) => {
       //   pool.query(
       //     'update tbl_user set _lowerage=?, _higherage=?,_lowerheight=?,_higherheight=?,_country=?,_religion=?, _languages=? where _email = ?',
       //     [
-      //       data.lowerage, 
-      //       data.higherage,
-      //       data.lowerheight,
-      //       data.higherheight,
-      //       data.country,
-      //       data.religion,
-      //       data.languages,
-      //       email
+      //       req.body.lowerage, 
+            // req.body.higherage,
+            // req.body.lowerheight,
+            // req.body.higherheight,
+            // req.body.country,
+            // req.body.religion,
+            // req.body.languages,
+            // req.params.email 
       //     ],
       //     (error, results, fields) => {
       //       if (error) {
@@ -73,6 +71,25 @@ router.post("/:email", (req, res, next) => {
   
      
     });
+    router.get("/:email", (req, res, next) => {
+      pool.query(
+        'select * from  partner_perferred where _email = ?',
+        [req.params.email],
+        function(error,user, fields) {
+        console.log(user)
+       
+        if (error) {
+          return res.status(401).json({
+            message: error
+          });
+        }
+            return res.status(200).json({
+              message:user, 
+            });
+            
+        
+      });   
+    })
 
 
 

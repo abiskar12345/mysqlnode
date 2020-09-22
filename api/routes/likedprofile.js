@@ -1,3 +1,4 @@
+const e = require("express");
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
@@ -80,10 +81,11 @@ router.post("", (req, res, next) => {
                   error:error,
                   message:"blockprofile not created"
                 });
-              } 
+              }else{
               res.status(201).json({
                 data:results
               });
+            }
         
             }
           );

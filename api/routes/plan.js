@@ -1,54 +1,58 @@
-// const express = require("express");
-// const router = express.Router();
+const express = require("express");
+const router = express.Router();
 
 
-// router.post("", (req, res, next) => {
-//     Plan.find({ email: req.body.email })
-//       .exec()
-//       .then(plan => {
-//         if (plan.length >= 1) {
-//           return res.status(409).json({
-//             message: "plan already exists"
-//           });
-//         } else {
 
-//             Date.prototype.addDays = function(days) {
-//                 var date = new Date(this.valueOf());
-//                 date.setDate(date.getDate() + days);
-//                 return date;
-//             }
-//             var date = new Date();
-//             console.log(date.addDays(5))
-            
+router.post("", (req, res, next) => {
+    pool.query(
+        'select *  from personal_details where _email = ?',
+        [req.params.email],
+        function(error,plan, fields) {
+        if (plan) {
+          return res.status(409).json({
+            message: "plan already exists"
+          });
+        } else {
 
+            Date.prototype.addDays = function(days) {
+                var date = new Date(this.valueOf());
+                date.setDate(date.getDate() + days);
+               return date;
+            }
+            var date = new Date();
+            console.log(date.addDays(5))
+
+
+            pool.query(
+                'insert into partner_perferred( _email,_subscriptionplan, _user_id,_card_id,_expireAt )  values(?,?,?,?,?) ',
+                [ 
+               
+                req.body.email,
+                req.body.plan,
+                req.body.userid,
+                req.body.card_id,
+                Date.now()//according to plan
+                ],
+                (error, results, fields) => {
         
-//               const user = new Plan({
-//                 _id: new mongoose.Types.ObjectId(),
+                    if (error) {
+                      res.status(500).json({
+                        error:error,
+                        message:"plan not sbscribed"
+                      });
+                    } 
+                    res.status(201).json({
+                      data:results
+                    });
+              
+                  }
+                );
+              
                
-//                 email: req.body.email,
-//                 subscriptionplan:req.body.plan,
-//                 user_id:req.body.userid,
-//                 card_id:req.body.card_id,
-//                 expiredAt:Date.now()//according to plan
-//               });
-//               user
-//                 .save()
-//                 .then(result => {
-//                   console.log(result);
-//                   res.status(201).json({
-//                     message: "User created"
-//                   });
-//                 })
-//                 .catch(err => {
-//                   console.log(err);
-//                   res.status(500).json({
-//                     error: err
-//                   });
-//                 });
-               
-//         }
-//       });
-//   });
+        }
+      });
+  });
 
 
-//  module.exports = router;
+
+ module.exports = router;
