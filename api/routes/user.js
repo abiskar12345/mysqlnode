@@ -3,13 +3,15 @@
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
+const Auth= require("../auth/authorization");
+const isAuthorized= require("../auth/profileathoruize");
+
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const multer = require('multer'); 
-const  checkToken = require("../auth/token_validation");
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, './uploads/');
@@ -65,17 +67,14 @@ router.post("/signup",  (req, res, next) => {
                 hash     
               ],
               (error, results, fields) => {
-                console.log(results);
-                console.log(fields);
-        
+                
                 if (error) {
                   res.status(500).send({ msg: error });
                 } else{ 
                   var token =  crypto.randomBytes(16).toString('hex');
                   pool.query(
-                    'insert into tbl_token(_userId, token)  dhhggdf@ail.com(?,?)',
-                    [ 
-                      req.body.email,
+                    'insert into tbl_token(_userId, token) values (?,?)',
+                    [ req.body.email,
                      token      
                     ],
                     (error) => {
@@ -86,16 +85,29 @@ router.post("/signup",  (req, res, next) => {
 
                   
     
-                  // var transporter = nodemailer.createTransport({ service: 'Sendgrid', auth: { user: process.env.SENDGRID_USERNAME, pass: process.env.SENDGRID_PASSWORD } });
-                  // var mailOptions = { from: 'no-reply@yourwebapplication.com', to: req.body.email, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token + '.\n' };
-                  // transporter.sendMail(mailOptions, function (err) {
-                  //     if (err) { return res.status(500).send({ msg: err.message }); }
-                  //         res.status(200).send( {message :"'A verification email has been sent to ' + user.email + '.'",
-                  //         data:results
-                  //       });
-                  // });
+                    var transporter = nodemailer.createTransport({
+                      name:'mail.mahajodi.space',
+                      host: 'mail.mahajodi.space',
+                      port:  465,
+                      secure: true,
+                      auth: { 
+                            user: 'admin@mahajodi.space',
+                            pass: '!!mahajodi!!' 
+                            }         
+                            });
+                  var mailOptions = { from: process.env.MAIL_USERNAME, 
+                    to: req.body.email, 
+                    subject: 'Account Verification Token',
+                     text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token + '.\n' };
+                  transporter.sendMail(mailOptions, function (err) {
+                      if (err) { return res.status(500).send({ msg: err.message }); }
+                          res.status(200).send( {message :"'A verification email has been sent to ' + user.email + '.'",
+                          data:results
+                        
+                        });
+                  });
                   // pool.query(
-                  //   'insert into blocked_profile( _email)  values(?) ',
+                  //   'insert into blocked_profile( _email) values(?) ',
                   //   [ 
           
                   //     req.body.email, 
@@ -150,7 +162,7 @@ router.post("/signup",  (req, res, next) => {
     });
 });
 
-router.delete("/:userId", (req, res, next) => {
+router.delete("/:userId",Auth, (req, res, next) => {
   pool.query(
     `delete from tbl_user where _id = ?`,
     [data.id],
@@ -187,7 +199,9 @@ router.post("/login",(req,res , next)=>{
     
        const token = jwt.sign({
           email:user[0]._email,
-          userId: user[0]._id,
+          id:user[0]._id,
+          name:user[0]._name
+          
          
         },process.env.JWT_KEY,{
           expiresIn:"1h" 
@@ -208,7 +222,7 @@ router.post("/login",(req,res , next)=>{
   
 
 });  
-router.post("/profileimage/:email", upload.single('profileImage'), (req, res, next) => {
+router.post("/profileimage/:email", upload.single('profileImage'), Auth,isAuthorized, (req, res, next) => {
   console.log(req.file.path)
  pool.query(
   
@@ -228,11 +242,11 @@ router.post("/profileimage/:email", upload.single('profileImage'), (req, res, ne
 
     pool.query(
   
-      'insert into profile_image( _email,_profileid, _image) values(?,?,?)',
+      'insert into profile_images( _email,_profileid, _image) values(?,?,?)',
       [
        
         req.params.email,
-        req.body.userId.userId,
+        req.body.userId,
          req.file.path 
       ],
       (error, result, fields) => {
@@ -258,7 +272,7 @@ router.post("/profileimage/:email", upload.single('profileImage'), (req, res, ne
 });
 
 
-router.patch('/:email',(req,res,next)=>{
+router.patch('/:email',Auth,isAuthorized,(req,res,next)=>{
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
@@ -292,7 +306,7 @@ router.patch('/:email',(req,res,next)=>{
   });  
 });
 
-router.get("/:email",(req,res,next)=>{
+router.get("/:email",Auth,isAuthorized,(req,res,next)=>{
   pool.query(
     'select * from blocked_profile where _email = ?',
     [req.body.email],

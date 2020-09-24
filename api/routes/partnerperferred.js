@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
 const Auth= require("../auth/authorization");
+const isAuthorized = require("../auth/profileathoruize");
 
 
 
 
-router.post("/:email",(req, res, next) => {
+
+router.post("/:email",Auth,isAuthorized,(req, res, next) => {
         pool.query(
           'insert into partner_perferred ( _email,_lowerage, _higherage,_lowerheight,_higherheight,_country,_religion, _languages,_occupation )  values (?,?,?,?,?,?,?,?,?) ',
           [ req.params.email,   
@@ -34,7 +36,7 @@ router.post("/:email",(req, res, next) => {
       }
     });     
     });
-    router.get("/:email", (req, res, next) => {
+    router.get("/:email",Auth,isAuthorized,(req, res, next) => {
       pool.query(
         'select * from  partner_perferred where _email = ?',
         [req.params.email],
@@ -54,7 +56,7 @@ router.post("/:email",(req, res, next) => {
       });   
     });
 
-  router.patch("/:email",(req,res,next)=>{
+  router.patch("/:email",Auth,isAuthorized,(req,res,next)=>{
    pool.query(
           'update tbl_user set _lowerage=?, _higherage=?,_lowerheight=?,_higherheight=?,_country=?,_religion=?, _languages=? where _email = ?',
           [

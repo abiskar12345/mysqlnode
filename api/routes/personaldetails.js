@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
- 
-
 const Auth= require("../auth/authorization");
+const isAuthorized = require("../auth/profileathoruize");
 
 
 
-router.post("/:email",Auth,(req, res,next) => {
+router.post("/:email",Auth,isAuthorized,(req, res,next) => {
 
 // Personaldetails.find({ email: req.params.email })
 //     .exec()
@@ -54,7 +53,7 @@ console.log(req.body)
    });
    
 
-    router.get("/:email", (req, res, next) => {
+    router.get("/:email", Auth,isAuthorized,(req, res, next) => {
       pool.query(
         'select *  from personal_details where _email = ?',
         [req.params.email],
@@ -75,7 +74,7 @@ console.log(req.body)
     });
 
 
-    router.patch("/:email",(req,res,next)=>{
+    router.patch("/:email",Auth,(req,res,next)=>{
       pool.query(
           'update tbl_user set _username=?, _gender=?,_birthdate=?,_age=?,_height=?,_country=?,_religion=?,_martialstats=?, _langages=?  where _email = ?',
           [
