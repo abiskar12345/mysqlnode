@@ -8,4 +8,8 @@ const pool = createPool({
   database: process.env.MYSQL_DATABASE
 });
 
+console.log("Create database");
+console.log(process.env.MYSQL_DATABASE)
+
+
 module.exports = pool;

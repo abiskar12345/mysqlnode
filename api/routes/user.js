@@ -41,51 +41,88 @@ const upload = multer({
 
 
 
-router.post("/signup",  (req, res, next) => {
+router.post("/signup", (req, res, next) => {
   pool.query(
-    'select * from tbl_user where _email = ?',
+    "select * from tbl_user where _email = ?",
     [req.body.email],
-    function(user, fields) {
-      if (user) { 
+    // function (user, fields) {
+    function (err, user) {
+      if (user.length) {
         return res.status(409).json({
-          message: "Mail already exists"
+          status: "failed",
+          message: "Mail already exists",
         });
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           if (err) {
             return res.status(500).json({
-              error: err
+              error: err,
             });
           } else {
             pool.query(
-              'insert into tbl_user(_name, _email,  _password)  values(?,?,?)',
-              [ 
-                req.body.name,
-                req.body.email,
-                hash     
-              ],
+              "insert into tbl_user(_username, _email,  _password)  values(?,?,?)",
+              [req.body.username, req.body.email, hash],
               (error, results, fields) => {
-                console.log(results);
-                console.log(fields);
-        
+                // console.log(results);
+                // console.log(fields);
                 if (error) {
-                  res.status(500).send({ msg: error });
-                } else{ 
-                  var token =  crypto.randomBytes(16).toString('hex');
+                  console.log(`error is here ${error}`)
+                  res.status(500).send({
+                    status: "failed",
+                    msg: "Registration failed",
+                    error:err
+                  });
+                } else {
+                  var token = crypto.randomBytes(16).toString("hex");
+                  console.log(token);
                   pool.query(
-                    'insert into tbl_token(_userId, token)  dhhggdf@ail.com(?,?)',
-                    [ 
-                      req.body.email,
-                     token      
-                    ],
-                    (error) => {
-              
-                      if (error) { return res.status(500).send({ msg: error });}
+                    "insert into tbl_token(_userId, token)  values(?,?)",
+                    [req.body.email, token],
+                    (error, results, fields) => {
+                      if (error) {
+                        return res
+                          .status(500)
+                          .send({ status: "failed", msg: error });
+                      }
+                      if (results) {
+                        pool.query(
+                          "select _id,_username, _email, _password from tbl_user where _email = ?",
+                          [req.body.email],
+                          function (error, user) {
+                            pool.query(
+                              "select * from tbl_token where _userId=?",
+                              [req.body.email],
+                              function (err, token) {
+                                console.log(err);
+                                if (token != null) {
+                                  const accessToken = token[0].token;
+                                  if (user != null) {
+                                    const data = {
+                                      id: user[0]._id,
+                                      name: user[0]._name,
+                                      email: user[0]._email,
+                                      password: user[0]._password,
+                                      accessToken: accessToken,
+                                    };
+                                    return res.status(201).json({
+                                      status: "Success",
+                                      msg: "User Registration Successful",
+                                      user: {
+                                        email: user[0]._email,
+                                        password: user[0]._password,
+                                      },
+                                      data,
+                                    });
+                                  }
+                                }
+                              }
+                            );
+                          }
+                        );
+                      }
+                    }
+                  );
 
-                    });
-
-                  
-    
                   // var transporter = nodemailer.createTransport({ service: 'Sendgrid', auth: { user: process.env.SENDGRID_USERNAME, pass: process.env.SENDGRID_PASSWORD } });
                   // var mailOptions = { from: 'no-reply@yourwebapplication.com', to: req.body.email, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token + '.\n' };
                   // transporter.sendMail(mailOptions, function (err) {
@@ -96,58 +133,45 @@ router.post("/signup",  (req, res, next) => {
                   // });
                   // pool.query(
                   //   'insert into blocked_profile( _email)  values(?) ',
-                  //   [ 
-          
-                  //     req.body.email, 
+                  //   [
+
+                  //     req.body.email,
                   //   ],
                   //   (error, results, fields) => {
-              
+
                   //     if (error) {
                   //       res.status(500).json({
                   //         error:error,
                   //         message:"blockprofile not created"
                   //       });
-                  //     } 
+                  //     }
                   //   }
                   // );
-          
+
                   // pool.query(
                   //   'insert into liked_profile( _email)  values(?) ',
-                  //   [ 
-          
-                  //     req.body.email, 
+                  //   [
+
+                  //     req.body.email,
                   //   ],
                   //   (error, results, fields) => {
-              
+
                   //     if (error) {
                   //       res.status(500).json({
                   //         error:error,
                   //         message:"likeprofile not created"
                   //       });
-                  //     } 
+                  //     }
                   //   }
                   // );
-
-
                 }
-
-
-
-                
-              
-              });
-
-          
-              
-             
-             
-        
+              }
+            );
           }
-
-         
         });
       }
-    });
+    }
+  );
 });
 
 router.delete("/:userId", (req, res, next) => {
@@ -164,50 +188,71 @@ router.delete("/:userId", (req, res, next) => {
 });
 
 
-router.post("/login",(req,res , next)=>{
+router.post("/login", (req, res, next) => {
   pool.query(
-    'select _id,_name, _email, _password from tbl_user where _email = ?',
+    "select _id,_username, _email, _password from tbl_user where _email = ?",
     [req.body.email],
-    function(error,user, fields) {
-    console.log(user)
-   
-    if (user==null) {
-      return res.status(401).json({
-        message: "ser dosent exists"
+    function (error, user, fields) {
+      // console.log(user[0]);
+      // console.log(user[0] == null);
+      if (user[0] == null) {
+        return res.status(401).json({
+          status: "failed",
+          message: "user dosent exists",
+        });
+      }
+      bcrypt.compare(req.body.password, user[0]._password, (err, result) => {
+        console.log(result);
+        // if (err) {
+        //   return res.status(401).json({
+        //     message: "aexists",
+        //   });
+        // }
+        if (result) {
+          console.log("Inside matching");
+          const token = jwt.sign(
+            {
+              // email: user[0].email,
+              userId: user[0]._id,
+            },
+            process.env.JWT_KEY,
+            {
+              expiresIn: "2d",
+            }
+          );
+          const data = {
+            id: user[0]._id,
+            name: user[0]._name,
+            email: user[0]._email,
+            password: user[0]._password,
+            accessToken: token,
+          };
+          return res.status(200).json({
+            status: "Success",
+            message: "User login successfully",
+            user: {
+              name: user[0]._name,
+              email: user[0]._email,
+              password: user[0]._password,
+            },
+            data,
+          });
+        } else {
+          res.status(401).json({
+            status: "failed",
+            message: "Incorrect Password",
+          });
+        }
+        // res.status(200).json({
+        //   status: "Failed",
+        //   message: "log in failed",
+        // });
       });
     }
-    bcrypt.compare(req.body.password,user[0]._password,(err,result)=>{
-      if (err){
-        return res.status(401).json({
-          message: "aexists"
-        });
-        
-      }
-      if(result) {
-    
-       const token = jwt.sign({
-          email:user[0]._email,
-          userId: user[0]._id,
-         
-        },process.env.JWT_KEY,{
-          expiresIn:"1h" 
-        });
-        return res.status(200).json({
-          message:user, 
-          token:token
-        });
-        
-      }
-      res.status(200).json({
-        message: "log in failed"
-      });
-    })
+  );
+});
 
 
-  })
-  
-
-});  
 router.post("/profileimage/:email", upload.single('profileImage'), (req, res, next) => {
   console.log(req.file.path)
  pool.query(
