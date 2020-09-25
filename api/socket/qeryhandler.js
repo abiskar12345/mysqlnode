@@ -84,7 +84,7 @@ class Helper{
 	async insertMessages(params){
 		try {
 			return await this.db.query(
-				"INSERT INTO message (`from_user_id`,`to_user_id`,`message`) values (?,?,?)",
+				"INSERT INTO message (`sender`,`receiver`,`message`) values (?,?,?)",
 				[params.fromUserId, params.toUserId, params.message]
 			);
 		} catch (error) {
@@ -96,11 +96,7 @@ class Helper{
 	async getMessages(userId, toUserId){
 		try {
 			return await this.db.query(
-				`SELECT id,from_user_id as fromUserId,to_user_id as toUserId,message FROM message WHERE 
-					(from_user_id = ? AND to_user_id = ? )
-					OR
-					(from_user_id = ? AND to_user_id = ? )	ORDER BY id ASC				
-				`,
+			'SELECT _id,sender as fromUserId,reciver as toUserId,message FROM message WHERE (sender = ? AND receiver = ? ) OR (sender = ? AND to receiver = ? )	ORDER BY id ASC',
 				[userId, toUserId, toUserId, userId]
 			);
 		} catch (error) {

@@ -13,7 +13,8 @@ const likeRoutes= require('./api/routes/likedprofile');
 const verificationRoutes = require('./api/auth/token_validation');
 const planRoutes= require('./api/routes/plan');
 const locationRoutes= require('./api/routes/locationcontroller');
-const  checkToken = require("./api/auth/token_validation");
+const pool = require("./api/config/database");
+
  
 
 app.use(morgan("dev"));
@@ -35,15 +36,69 @@ app.use((req, res, next) => {
 });
 
 
+function intervalFunc() {
+  Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() - days);
+   return date;
+}
+var date = new Date();
+console.log(date.addDays(-1))
+
+
+  pool.query('select _gender, count(*)  as singlecont FROM  personal_details WHERE createdAt >= ? group by _gender ',
+  [date.addDays(1)],
+  function(error,reslt){
+    if(error){
+      console.log(error);
+    } else{
+      console.log(reslt);
+    pool.query('insert into new_profiles (addedprofile,male,female) values(?,?,?)',
+    [
+      reslt[0].singlecont+reslt[1].singlecont,
+      reslt[0].singlecont,
+      reslt[1].singlecont
+     ],function(error,relt){
+      if(error){
+        console.log(error);
+      }
+
+    
+  });
+  }
+
+  }
+  );
+
+  pool.query('delete from tbl_plan where _expireAt >= ?',
+  [
+    date.addDays(0)
+  ]
+  ,function(error,relt){
+    if(error){
+      console.log(error);
+    }
+
+  
+});
+  
+
+ 
+  
+};
+
+setInterval(intervalFunc, 8640000);
+
+
 
 //////////////////////////////////////////////////////// Routes which should handle requests////////////////////////////////////////////////////////////////////////
-// app.use("/user/partnerperferred", partnerperferredRoutes);
+app.use("/user/partnerperferred", partnerperferredRoutes);
 app.use("/user/personaldetails", personaldetailsRoutes);
 app.use("/user", userRoutes);
 app.use("/block", blockRoutes);
 app.use("/like", likeRoutes);
-// app.use("/validate",verificationRoutes);
-// app.use("/user/plan", planRoutes);
+app.use("/validate",verificationRoutes);
+app.use("/user/plan", planRoutes);
 // app.use("/location", locationRoutes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

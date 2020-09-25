@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
+const Auth= require("../auth/authorization");
+const isAuthorized = require("../auth/profileathoruize");
 
 
-router.post("", (req, res, next) => {
+router.post("",Auth,isAuthorized, (req, res, next) => {
   pool.query(
     'insert into blocked_profile( _blockedprofiles,_email)  values (?,?) ',
     [ 
@@ -28,7 +30,7 @@ router.post("", (req, res, next) => {
   });
 
 
- router.get("/:email",(req,res,next)=>{
+ router.get("/:email",Auth,isAuthorized,(req,res,next)=>{
       pool.query(
         'select * from blocked_profile where _email = ?',
         [req.body.email],

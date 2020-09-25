@@ -1,100 +1,119 @@
-// const jwt = require("jsonwebtoken");
-// const express = require("express");
-// const crypto = require('crypto');
-// const nodemailer = require('nodemailer');
-// const router = express.Router();
-// const mongoose = require("mongoose");
-// const Token = require("../models/verificationtoken");
-// const User = require("../models/user"); 
 
-// module.exports = {
-//   checkToken: (req, res, next) => {
-//     let token = req.headers.authorization;
-//     if (token) {
-//       // Remove Bearer from string
-//       token = token.slice(7);
-//       jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
-//         if (err) {
-//           return res.json({
-//             success: 0,
-//             message: "Invalid Token..."
-//           });
-//         } else {
-//           console.log('jhjhjh')
-//           req.decoded = decoded;
-//           next();
+const express = require("express");
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const router = express.Router();
 
-//         }
-//       });
-//     } else {
-//       return res.json({
-//         success: 0,
-//         message: "Access Denied! Unauthorized User"
-//       });
-//     }
-//   }
+
+const pool = require("../config/database");
 
 
 
-  
+router.post("/confirmation",(req,res,next)=>{
 
-  
-// };
+  // Find a matching token
+  pool.query('select * from tbl_token where token = ?',[req.body.token ], function (err, token) {
+      if (!token) return res.status(400).send({ type: 'not-verified', msg: 'We were unable to find a valid token. Your token my have expired.' });
+
+      // If we found a token, find a matching user
+      console.log(token);
+      pool.query('select * from tbl_user where _email = ?', [ 
+         token[0]._userId,
+        
+        ], function (error, user,fields) {
+          if (error) {
+            return res.status(401).json({
+              message: error
+            });
+          }
+          console.log(user)
+          if (!user) return res.status(400).send({ msg: 'We were unable to find a user for this token.' });
+          if (user[0].isVerified) return res.status(400).send({ type: 'already-verified', msg: 'This user has already been verified.' });
+
+          // Verify and save the user
+         pool.query('update tbl_user set isVerified=? where _email = ?',
+         [ "yes",
+          user[0]._email
+        ],function (error, data){
+          if (error) {
+            return res.status(401).json({
+              message: error
+            });
+          }
+          res.status(200).send( {message :data        
+           });
+
+         }
+         )
+      });
+  })
+
+});
 
 
-// /**
-// * POST /confirmation
+router.post('/resendtoken',(req,res,next)=>{
+    pool.query('select _id,_name,_email,isVerified from tbl_user where _email = ?',
+    [ req.body.email], 
+     function(error,user, fields) {
+        console.log(user)
+        if(user==null){
+          return res.status(401).json({
+            message:"profile not fond"
+          });
 
-// */
+        }
+       
+        if (error) {
+          return res.status(401).json({
+            message: error
+          });
+        }
+       if (user.isVerified){
+        return res.status(400).send({
+           msg: 'This account has already been verified. Please log in.'
+           });
+       } 
+       else
+           var token = crypto.randomBytes(16).toString('hex') ;
+          pool.query('insert into tbl_token( _userId,token)  values(?,?) ',[
+            user[0]._email, 
+            token 
+       ], function(error,tokn, fields) {
+        
+           
+            if (error) {
+              return res.status(401).json({
+                message: error
+              });
+            }
 
-// router.post("/confirmation",(req,res,next)=>{
+           
+            var transporter = nodemailer.createTransport({
+               name:'mail.mahajodi.space',
+                host: 'mail.mahajodi.space',
+                port:  465,
+                secure: true,
+                auth: { 
+                      user: 'admin@mahajodi.space',
+                      pass: '!!mahajodi!!' 
+                      }         
+                      });
+            var mailOptions = { 
+              sendmail: true ,
+              from: process.env.MAIL_USERNAME, 
+              to: user[0]._email, 
+              subject: 'Account Verification Token',
+               text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + tokn + '.\n' };
+            transporter.sendMail(mailOptions, function (err) {
+                if (err) { return res.status(500).send({ msg: err.message }); }
+                    res.status(200).send( {message :'A verification email has been sent to ' + user[0]._email + '.',
+                  
+                  });
+            });
+        })
+           
+            
+        })
+});
 
-//   // Find a matching token
-//   Token.findOne({ token: req.body.token }, function (err, token) {
-//       if (!token) return res.status(400).send({ type: 'not-verified', msg: 'We were unable to find a valid token. Your token my have expired.' });
-
-//       // If we found a token, find a matching user
-//       User.findOne({ _id: token._userId, email: req.body.email }, function (err, user) {
-//           if (!user) return res.status(400).send({ msg: 'We were unable to find a user for this token.' });
-//           if (user.isVerified) return res.status(400).send({ type: 'already-verified', msg: 'This user has already been verified.' });
-
-//           // Verify and save the user
-//           user.isVerified = true;
-//           user.save(function (err) {
-//               if (err) { return res.status(500).send({ msg: err.message }); }
-//               res.status(200).send("The account has been verified. Please log in.");
-//           });
-//       });
-//   })
-
-// });
-
-
-// router.post('/resendtoken',(req,res,next)=>{
-
-//    User.findOne({ email: req.body.email }, function (err, user) {
-//       if (!user) return res.status(400).send({ msg: 'We were unable to find a user with that email.'});
-//       if (user.isVerified) return res.status(400).send({ msg: 'This account has already been verified. Please log in.' });
-
-//       // Create a verification token, save it, and send email
-//       var token = new Token({ _userId: user._id, token: crypto.randomBytes(16).toString('hex') });
-
-//       // Save the token
-//       token.save(function (err) {
-//           if (err) { return res.status(500).send({ msg: err.message }); }
-//           console.log("heyy");
-//           //  let testAccount = nodemailer.createTestAccount();
-
-//           // Send the email
-//          res.status(500).send({ msg: error });
-//           var mailOptions = { from: 'amazingstudios@gmail.com', to: user.email, subject: 'Account Verification Token', text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + token.token + '.\n' };
-//           transporter.sendMail(mailOptions, function (err) {
-//               if (err) { return res.status(500).send({ msg: err.message }); }
-//               res.status(200).send('A verification email has been sent to ' + user.email + '.');
-//           });
-//       });
-
-//   });
-// });
-
-// module.exports = router;
+ module.exports = router;

@@ -1,14 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const pool = require('../config/database');
+const Auth= require("../auth/authorization");
+const isAuthorized = require("../auth/profileathoruize");
 
 
 
-router.post("", (req, res, next) => {
+router.post("",Auth,isAuthorized, (req, res, next) => {
     pool.query(
-        'select *  from personal_details where _email = ?',
+        'select *  from tbl_plan where _email = ?',
         [req.params.email],
         function(error,plan, fields) {
-        if (plan) {
+        if (plan==null) {
+          console.log(plan);
           return res.status(409).json({
             message: "plan already exists"
           });
@@ -24,14 +28,13 @@ router.post("", (req, res, next) => {
 
 
             pool.query(
-                'insert into partner_perferred( _email,_subscriptionplan, _user_id,_card_id,_expireAt )  values(?,?,?,?,?) ',
-                [ 
-               
+                'insert into tbl_plan( _email,_subscriptionplan, _user_id,_card_id,_expireAt )  values(?,?,?,?,?) ',
+                [  
                 req.body.email,
                 req.body.plan,
                 req.body.userid,
                 req.body.card_id,
-                Date.now()//according to plan
+                Date.now() //according to plan
                 ],
                 (error, results, fields) => {
         
@@ -46,9 +49,7 @@ router.post("", (req, res, next) => {
                     });
               
                   }
-                );
-              
-               
+                );       
         }
       });
   });

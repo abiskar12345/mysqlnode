@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const pool = require('../config/database');
+const Auth= require("../auth/authorization");
+const isAuthorized = require("../auth/profileathoruize");
 
 
 
-router.post("/:email", (req, res, next) => {
+router.post("/:email",Auth,isAuthorized,(req, res, next) => {
    
           bcrypt.hash(req.body.cardnumber, 10, (err, hash) => {
             if (err) {
