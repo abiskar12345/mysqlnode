@@ -113,12 +113,37 @@ router.post("/signup", (req, res, next) => {
                       return res
                         .status(500)
                         .send({ status: "failed", msg: err.message });
+                    } else {
+                      pool.query(
+                        "SELECT * FROM tbl_user WHERE _email = ?",
+                        [req.body.email],
+                        function (error, user) {
+                          console.log(`last check ${req.body.email}`);
+                          if (err) {
+                            res.status(404).json({
+                              status: "failed",
+                              error,
+                            });
+                          }
+                          const data = {
+                            username: user[0]._username,
+                            email: user[0]._email,
+                            password:user[0]._password
+                          };
+
+                          res.status(200).send({
+                            status: "Success",
+                            message: `a verification email sent to : ${req.body.email}`,
+                            user:{
+                              email:user[0]._email,
+                              password:user[0]._password
+                            },
+                            data,
+                          
+                          });
+                        }
+                      );
                     }
-                    res.status(200).send({
-                      status: "Success",
-                      message: `a verification email sent to : ${req.body.email}`,
-                      results,
-                    });
                   });
                   // pool.query(
                   //   'insert into blocked_profile( _email) values(?) ',
@@ -185,7 +210,7 @@ router.post("/login", (req, res, next) => {
       // console.log(user[0] == null);
       if (user[0] == null) {
         return res.status(401).json({
-          status:"Failed",
+          status: "Failed",
           message: "User email doesn't exist",
         });
       }
