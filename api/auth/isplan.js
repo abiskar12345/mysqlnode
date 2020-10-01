@@ -23,5 +23,4 @@ const isPlan = (req, res, next) => {
     });
     
 }
-
 module.exports = isPlan;
