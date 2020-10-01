@@ -26,7 +26,7 @@ router.post("", (req, res, next) =>{
 
           }
          else {
-           
+          
             const token = jwt.sign(
               {
                 userId: user[0]._id,
