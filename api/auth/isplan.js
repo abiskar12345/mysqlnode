@@ -1,8 +1,7 @@
 const pool = require("../config/database");
 const isPlan = (req, res, next) => {
 
-    var date = Date.now();
-    
+    var date = Date.now();  
    pool.query('select _id,_name, _email ,planExpire from tbl_user where _id=?',
    [ req.userId ],
     function(err, user) {
