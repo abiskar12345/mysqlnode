@@ -94,5 +94,4 @@ router.post("/:email",Auth, isAuthorized,(req, res, next) => {
       
     })
 
-
 module.exports = router;
