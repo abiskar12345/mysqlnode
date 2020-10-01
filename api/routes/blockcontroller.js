@@ -33,7 +33,6 @@ router.post("",Auth,isAuthorized, (req, res, next) => {
   );
   });
 
-
  router.get("/:email",Auth,isAuthorized,(req,res,next)=>{
       pool.query(
         'select * from blocked_profile where _email = ?',
