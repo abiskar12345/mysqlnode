@@ -14,10 +14,10 @@ module.exports =(req, res, next) => {
                 message: "Invalid Token..."
               });  
             } else {
-             
-              req.userId = decoded.id;
+              console.log(`inside auth : ${decoded.userId}`)
+              req.userId = decoded.userId;
+              console.log(req.userId)
               next();
-    
             }
           });
         } else {
