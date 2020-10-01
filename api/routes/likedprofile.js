@@ -37,7 +37,7 @@ router.post("", (req, res, next) => {
           if (error) {
              return res.status(500).json({
               error:error,
-              message:"blockprofile not created"
+              message:"likeprofile not created"
             });
           } 
       
@@ -115,10 +115,12 @@ router.post("", (req, res, next) => {
     function(error, user, fields) {
       if (error) {
         return res.status(409).json({
+             status: "error",
           message:error
         });
       } 
       res.status(201).json({
+        status: "Success",
         data:user
       });
 
