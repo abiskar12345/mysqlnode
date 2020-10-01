@@ -6,11 +6,7 @@ const Auth = require("../auth/authorization");
 const isAuthorized = require("../auth/profileathoruize");
 
 router.post("/:email", Auth,isAuthorized, (req, res, next) => {
-  // Personaldetails.find({ email: req.params.email })
-  //     .exec()
-  //     .then(user => {
-  //       if (user.length < 1) {
-  //         console.log("hii");
+
   // console.log(req.body);
   pool.query(
     "SELECT * FROM personal_details WHERE _email = ?",
