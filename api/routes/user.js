@@ -45,7 +45,7 @@ router.post("/signup", (req, res, next) => {
         return res.status(409).json({
           status: "failed",
           message: "Mail already exists",
-        });
+        }); 
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           if (err) {
