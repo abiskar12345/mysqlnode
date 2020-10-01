@@ -54,8 +54,7 @@ router.post("", (req, res, next) =>{
               data:user,
             });
          }
-        
-                    
+                     
            
   });
 });
