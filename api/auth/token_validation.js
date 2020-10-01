@@ -9,14 +9,12 @@ const pool = require("../config/database");
 
 
 
-router.post("/confirmation",(req,res,next)=>{
-
+router.get("/confirmation/:token",(req,res,next)=>{
   // Find a matching token
-  pool.query('select * from tbl_token where token = ?',[req.body.token ], function (err, token) {
+  pool.query('select * from tbl_token where token = ?',[req.params.token ], function (err, token) {
       if (!token) return res.status(400).send({ type: 'not-verified', msg: 'We were unable to find a valid token. Your token my have expired.' });
 
-      // If we found a token, find a matching user
-      console.log(token);
+    
       pool.query('select * from tbl_user where _email = ?', [ 
          token[0]._userId,
         
@@ -49,10 +47,8 @@ router.post("/confirmation",(req,res,next)=>{
   })
 
 });
-
-
 router.post('/resendtoken',(req,res,next)=>{
-    pool.query('select _id,_name,_email,isVerified from tbl_user where _email = ?',
+   pool.query('select _id,_name,_email,isVerified from tbl_user where _email = ?',
     [ req.body.email], 
      function(error,user, fields) {
         console.log(user)
@@ -86,6 +82,7 @@ router.post('/resendtoken',(req,res,next)=>{
                 message: error
               });
             }
+            console.log(token);
 
            
             var transporter = nodemailer.createTransport({
@@ -99,11 +96,11 @@ router.post('/resendtoken',(req,res,next)=>{
                       }         
                       });
             var mailOptions = { 
-              sendmail: true ,
+              
               from: process.env.MAIL_USERNAME, 
               to: user[0]._email, 
               subject: 'Account Verification Token',
-               text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + tokn + '.\n' };
+               text: 'Hello,\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/validate/confirmation\/' + token + '.\n' };
             transporter.sendMail(mailOptions, function (err) {
                 if (err) { return res.status(500).send({ msg: err.message }); }
                     res.status(200).send( {message :'A verification email has been sent to ' + user[0]._email + '.',

@@ -7,7 +7,7 @@ const isAuthorized = require("../auth/profileathoruize");
 
 router.post("",Auth,isAuthorized, (req, res, next) => {
   pool.query(
-    'insert into blocked_profile( _blockedprofiles,_email)  values (?,?) ',
+    'insert into blocked_profile( _blockedprofiles, _email)  values (?,?) ',
     [ 
       req.body.blockedprofile,
 
@@ -17,11 +17,15 @@ router.post("",Auth,isAuthorized, (req, res, next) => {
 
       if (error) {
         res.status(500).json({
-          error:error,
-          message:"blockprofile not created"
+          status: "error",
+          message:"blockprofile not created",  
+          error: error,
         });
       } 
       res.status(201).json({
+        status: "Success",
+        message: " blockprofile added successfully",
+      
         data:results
       });
 
@@ -37,10 +41,12 @@ router.post("",Auth,isAuthorized, (req, res, next) => {
         function(error, user, fields) {
           if (error) {
             return res.status(409).json({
-              message:error
+              status: "error",
+              error:error
             });
           } 
           res.status(201).json({
+            status: "Success",
             data:user
           });
 
