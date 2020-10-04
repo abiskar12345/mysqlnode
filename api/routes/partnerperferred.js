@@ -19,6 +19,17 @@ router.post("/:email",Auth, isAuthorized,(req, res, next) => {
             
           ],
           (error, results, fields) => {
+                  const dat={
+                          email:  req.params.email,   
+                          lowerage:  req.body.lowerage, 
+                          higherage:  req.body.higherage,
+                          lowerheight: req.body.lowerheight,
+                          higherheight:  req.body.higherheight,
+                          country:  req.body.country,
+                          religion: req.body.religion,
+                          languages: req.body.languages,
+                          occupation: req.body.occupation
+                  }
     
             if (error) {
               return  res.status(500).json({
@@ -31,7 +42,7 @@ router.post("/:email",Auth, isAuthorized,(req, res, next) => {
             return  res.status(201).json({
               status: "Success",
              message: " partner Perferrred added successfully",
-              data: results
+              data: dat
             });
       }
     });     
