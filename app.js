@@ -96,6 +96,7 @@ app.use("/like", likeRoutes);
 app.use("/validate",verificationRoutes);
 app.use("/user/plan", planRoutes);
 app.use("/jwtlogin", jwtLogin);
+app.use("/khaltiverify", khaltiVerify);
 // app.use("/location", locationRoutes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
