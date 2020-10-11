@@ -18,19 +18,39 @@ router.post("/:email", Auth,isAuthorized, (req, res, next) => {
           message: "Personal details added already",
         });
       } else {
+        // pool.query(
+        //   "insert into personal_details( _email,_name,_birthdate,_age,_martialstatus,_height,_religion,_gender,_country, _languages)  values(?,?,?,?,?,?,?,?,?,?) ",
+        //   [
+        //     req.params.email,
+        //     req.body.name,
+        //     req.body.birthdate,
+        //     req.body.age,
+        //     req.body.maritalstatus,
+        //     req.body.height,
+        //     req.body.religion,
+        //     req.body.gender,
+        //     req.body.country,
+        //     req.body.languages,
+        //   ],
         pool.query(
-          "insert into personal_details( _email,_name,_birthdate,_age,_martialstatus,_height,_religion,_gender,_country, _languages)  values(?,?,?,?,?,?,?,?,?,?) ",
+          "insert into personal_details( _email,_firstName,_lastName,_martialstatus,_height,_weight,_religion,_gender,_country, _city,_qualification,_profession,_bio)  values(?,?,?,?,?,?,?,?,?,?,?,?,?) ",
           [
             req.params.email,
-            req.body.name,
-            req.body.birthdate,
-            req.body.age,
-            req.body.maritalstatus,
+            req.body.firstName,
+            req.body.lastName,
+            // req.body.birthdate,
+            // req.body.age,
+            req.body.maritalStatus,
             req.body.height,
+            req.body.weight,
             req.body.religion,
             req.body.gender,
             req.body.country,
-            req.body.languages,
+            req.body.city,
+            req.body.qualification,
+            req.body.profession,
+            req.body.bio,
+            // req.body.languages,
           ],
           function (error, result) {
             console.log(`this is detail error : ${error}`)

@@ -1,6 +1,6 @@
 const pool = require("../config/database");
 const isAuthorized = (req, res, next) => {
-    console.log(req.userId)
+    console.log(`this is user id authorized${req.userId}`)
    pool.query('select _username, _email, _password from tbl_user where _id=?',
      [req.userId],
     function (err, user) {
