@@ -90,10 +90,10 @@ router.post("/signup", (req, res, next) => {
                     port: 465,
                     secure: true,
                     auth: {
-                      // user: process.env.DOMAIN_EMAIL,
-                      // pass: process.env.EMAIL_PASSWORD,
-                      user: "admin@mahajodi.space",
-                      pass: "!!mahajodi!!",
+                      user: process.env.DOMAIN_EMAIL,
+                      pass: process.env.EMAIL_PASSWORD,
+                      // user: "admin@mahajodi.space",
+                      // pass: "!!mahajodi!!",
                     },
                   });
                   var mailOptions = {
