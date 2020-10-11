@@ -52,16 +52,18 @@ router.post("/signup", (req, res, next) => {
             return res.status(500).json({
               error: err,
             });
-          } else {v
+          } else {
+            console.log("**********************")
             pool.query(
               "insert into tbl_user(_username, _email,  _password)  values(?,?,?)",
               [req.body.username, req.body.email, hash],
               (error, results, fields) => {
+                console.log(`error is here ${error}`);
+                console.log(`error is here ${results}`);
                 if (error) {
-                  console.log(`error is here ${error}`);
                   res.status(500).send({
                     status: "failed",
-                    msg: "Registration failed",
+                    message: "Registration failed",
                     error: error,
                   });
                 } else {
@@ -71,7 +73,7 @@ router.post("/signup", (req, res, next) => {
                     "insert into tbl_token(_userId, token) values (?,?)",
                     [req.body.email, token],
                     (error) => {
-                      console.log(error);
+                      console.log(`error ****${error}`);
                       if (error) {
                         return res.status(500).send({
                           status: "failed",
@@ -110,9 +112,10 @@ router.post("/signup", (req, res, next) => {
                   transporter.sendMail(mailOptions, function (err) {
                     console.log(req.body.email);
                     if (err) {
+                      console.log(err)
                       return res
                         .status(500)
-                        .send({ status: "failed", msg: err.message });
+                        .send({ status: "failed", message: err.message });
                     } else {
                       pool.query(
                         "SELECT * FROM tbl_user WHERE _email = ?",
