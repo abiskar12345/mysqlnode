@@ -8,6 +8,10 @@ const pool = createPool({
   database: process.env.MYSQL_DATABASE
 });
 
+// pool.getConnection(function(err){
+//   if(err) console.log(err);
+// })
+
 console.log("Create database");
 console.log(process.env.MYSQL_DATABASE)
 

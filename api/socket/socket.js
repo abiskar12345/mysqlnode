@@ -13,10 +13,12 @@ class Socket{
 
         this.io.on('connection', (socket) => {
 
+            console.log("user connected to socket")
             /**
             * get the user's Chat list
             */
             socket.on('chat-list', async (userId) => {
+                console.log(`this is user id :${userId}`)
 
                let chatListResponse = {};
 
@@ -104,9 +106,10 @@ class Socket{
     }
     
     socketConfig(){
-
         this.io.use( async (socket, next) => {
+            console.log("configuring")
             let userId = socket.request._query['userId'];
+            console.log(`userid is :${userId}`)
             let userSocketId = socket.id;          
             const response = await helper.addSocketId( userId, userSocketId);
             if(response &&  response !== null){

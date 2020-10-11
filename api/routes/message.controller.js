@@ -1,17 +1,17 @@
 
-//   client.on("message", (data) => {
-//     let messageAttributes = {
-//         content: data.content,
-//         userName: data.userName,
-//         user: data.userId
-//       },
-//       m = new Message(messageAttributes);
-//     m.save()
-//       .then(() => {
-//         io.emit("message", messageAttributes);
-//       })
-//       .catch(error => console.log(`error: ${error.message}`));
-//   });
+  client.on("message", (data) => {
+    let messageAttributes = {
+        content: data.content,
+        userName: data.userName,
+        user: data.userId
+      },
+      m = new Message(messageAttributes);
+    m.save()
+      .then(() => {
+        io.emit("message", messageAttributes);
+      })
+      .catch(error => console.log(`error: ${error.message}`));
+  });
   
 
 

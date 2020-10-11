@@ -128,18 +128,17 @@ router.post("/signup", (req, res, next) => {
                           const data = {
                             username: user[0]._username,
                             email: user[0]._email,
-                            password:user[0]._password
+                            password: user[0]._password,
                           };
 
                           res.status(200).send({
                             status: "Success",
                             message: `a verification email sent to : ${req.body.email}`,
-                            user:{
-                              email:user[0]._email,
-                              password:user[0]._password
+                            user: {
+                              email: user[0]._email,
+                              password: user[0]._password,
                             },
                             data,
-                          
                           });
                         }
                       );
@@ -328,29 +327,33 @@ router.patch("/:email", Auth, isAuthorized, (req, res, next) => {
   });
 });
 
-router.get("/:email",Auth, isAuthorized,(req, res, next) => {
+router.get("/:email", Auth, isAuthorized, (req, res, next) => {
   pool.query(
-    'select * from  partner_perferred where _email = ?',
-    [req.params.email], 
-   (error ,perferance, fields) =>{
+    "select * from  partner_preferred where _email = ?",
+    [req.params.email],
+    (error, perferance, fields) => {
+      console.log(`this is error: ${error}`)
       if (error) {
         return res.status(409).json({
           error: error,
         });
       }
-      console.log(perferance)
+      console.log(`this is preferred: ${perferance[0]._religion}`);
       pool.query(
-        "SELECT  a._username,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstatus, b._languages ,b._occupation FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._age BETWEEN ? AND ? OR b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._languages = ? OR b._occupation = ? ) And a._email NOT IN (SELECT _blockedprofiles FROM blocked_profile WHERE  _email = ?  IS NOT NULL )",
+        // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstatus, b._languages ,b._occupation FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._age BETWEEN ? AND ? OR b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._languages = ? OR b._occupation = ? ) And a._email NOT IN (SELECT _blockedprofiles FROM blocked_profile WHERE  _email = ?  IS NOT NULL )",
+        // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._profession = ? )",
+        "SELECT a._id, a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  b._height=  ? ",
         [
-          perferance[0]._lowerage,
-          perferance[0]._higherage,
-          perferance[0]._lowerheight,
-          perferance[0]._higherheight,
-          perferance[0]._country,
-          perferance[0]._religion,
-          perferance[0]._languages,
-          perferance[0]._occupation,
-          req.params.email],
+          // perferance[0]._lowerAge,
+          // perferance[0]._higherAge,
+          perferance[0]._lowerHeight,
+          // perferance[0]._higherHeight,
+          // perferance[0]._country,
+          // perferance[0]._religion,
+          // perferance[0]._languages,
+          // perferance[0]._profession,
+          // req.params.email,
+        ],
         function (error, user, fields) {
           if (error) {
             return res.status(409).json({
@@ -361,7 +364,7 @@ router.get("/:email",Auth, isAuthorized,(req, res, next) => {
           }
           res.status(201).json({
             status: "Success",
-           
+            messsage:"Successfully got partners",
             data: user,
           });
         }

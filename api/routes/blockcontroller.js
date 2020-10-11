@@ -5,7 +5,8 @@ const Auth= require("../auth/authorization");
 const isAuthorized = require("../auth/profileathoruize");
 
 
-router.post("",Auth,isAuthorized, (req, res, next) => {
+// router.post("",Auth,isAuthorized, (req, res, next) => {
+router.post("/:email",Auth,isAuthorized, (req, res, next) => {
   pool.query(
     'insert into blocked_profile( _blockedprofiles,_email)  values (?,?) ',
     [ 

@@ -29,7 +29,7 @@ class Helper{
 
 	async userSessionCheck(userId){
 		try {
-			const result = await this.db.query(`SELECT online,usernuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuame FROM user WHERE id = ? AND online = ?`, [userId,'Y']);
+			const result = await this.db.query(`SELECT online,userame FROM user WHERE id = ? AND online = ?`, [userId,'Y']);
 			if(result !== null){
 				return result[0]['username'];
 			}else{

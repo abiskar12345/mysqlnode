@@ -12,6 +12,7 @@ const blockRoutes= require('./api/routes/blockcontroller');
 const likeRoutes= require('./api/routes/likedprofile');
 const verificationRoutes = require('./api/auth/token_validation');
 const planRoutes= require('./api/routes/plan');
+const chatRoutes = require('./api/routes/chatController');
 const locationRoutes= require('./api/routes/locationcontroller');
 const pool = require("./api/config/database");
 
@@ -99,6 +100,7 @@ app.use("/block", blockRoutes);
 app.use("/like", likeRoutes);
 app.use("/validate",verificationRoutes);
 app.use("/user/plan", planRoutes);
+app.use("/chat", chatRoutes);
 // app.use("/location", locationRoutes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
