@@ -19,6 +19,9 @@ app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
+// const khaltiVerify = 
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -96,12 +99,8 @@ app.use("/block", blockRoutes);
 app.use("/like", likeRoutes);
 app.use("/validate",verificationRoutes);
 app.use("/user/plan", planRoutes);
-<<<<<<< HEAD
-app.use("/chat", chatRoutes);
-=======
 app.use("/jwtlogin", jwtLogin);
-app.use("/khaltiverify", khaltiVerify);
->>>>>>> acbd2f81406d64a7570514013c804839cb066890
+// app.use("/khaltiverify", khaltiVerify);
 // app.use("/location", locationRoutes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

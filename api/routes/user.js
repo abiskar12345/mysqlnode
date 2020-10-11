@@ -336,10 +336,7 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
           }
           res.status(201).json({
             status: "Success",
-<<<<<<< HEAD
             messsage:"Successfully got partners",
-=======
->>>>>>> acbd2f81406d64a7570514013c804839cb066890
             data: user,
           });
         }

@@ -22,22 +22,6 @@ class Helper{
 	// 	}
 	// }
 
-<<<<<<< HEAD
-	async userSessionCheck(userId){
-		try {
-			const result = await this.db.query(`SELECT online,userame FROM user WHERE id = ? AND online = ?`, [userId,'Y']);
-			if(result !== null){
-				return result[0]['username'];
-			}else{
-				return null;
-			}
-		} catch (error) {
-			return null;
-		}
-	}
-
-=======
->>>>>>> acbd2f81406d64a7570514013c804839cb066890
 	async addSocketId(userId, userSocketId){
 		try {
 			return await this.db.query(`UPDATE user SET socketid = ?, online= ? WHERE id = ?`, [userSocketId,'Y',userId]);
