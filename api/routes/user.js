@@ -93,12 +93,13 @@ router.post("/signup", (req, res, next) => {
                       user: process.env.DOMAIN_EMAIL,
                       pass: process.env.EMAIL_PASSWORD,
                       // user: "admin@mahajodi.space",
-                      // pass: "!!mahajodi!!",
+                      // pass: "!!Mahajod!!",
                     },
                   });
                   var mailOptions = {
                     // from: process.env.MAIL_USERNAME,
                     from: process.env.DOMAIN_EMAIL,
+                    // from: 'admin@mahajodi.space',
                     to: req.body.email,
                     subject: "Account Verification Token",
                     text:

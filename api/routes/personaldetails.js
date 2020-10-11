@@ -33,6 +33,7 @@ router.post("/:email", Auth,isAuthorized, (req, res, next) => {
             req.body.languages,
           ],
           function (error, result) {
+            console.log(`this is detail error : ${error}`)
             if (error) {
               res.status(500).json({
                 error: error,
