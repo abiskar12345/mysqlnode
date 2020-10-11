@@ -314,7 +314,7 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
           error: error,
         });
       }
-      console.log(`this is preferred: ${perferance[0]._religion}`);
+      console.log(`this is preferred: ${perferance[0]._lowerHeight}`);
       pool.query(
         // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstatus, b._languages ,b._occupation FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._age BETWEEN ? AND ? OR b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._languages = ? OR b._occupation = ? ) And a._email NOT IN (SELECT _blockedprofiles FROM blocked_profile WHERE  _email = ?  IS NOT NULL )",
         // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._profession = ? )",
@@ -363,8 +363,6 @@ router.post('/checkusername',(req,res,next)=>{
             return res.status(409).json({
               error:err
             });
-                
-                
               
           }
           if(result[0].count>0){
@@ -383,14 +381,14 @@ router.post('/checkusername',(req,res,next)=>{
 
           }
 
-
         })
       }
 
 });
-router.get("",(req,res,next)=>{
+router.get("/",(req,res,next)=>{
   pool.query(
-    'SELECT a._name,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstats, b._langages FROM tbl_user as a JOIN personal_details as b ON a._email = b._email',
+    // 'SELECT a._username,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstats, b._langages FROM tbl_user as a JOIN personal_details as b ON a._email = b._email',
+    'SELECT a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus FROM tbl_user as a JOIN personal_details as b ON a._email = b._email',
     function(error, user, fields) {
       if (error) {
         return res.status(409).json({
@@ -401,7 +399,6 @@ router.get("",(req,res,next)=>{
       } 
       res.status(201).json({
         status: "Success",
-       
         data:user
       });
 

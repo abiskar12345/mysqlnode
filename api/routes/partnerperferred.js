@@ -5,48 +5,64 @@ const Auth = require("../auth/authorization");
 const isAuthorized = require("../auth/profileathoruize");
 const isPlan = require("../auth/isplan");
 router.post("/:email", Auth, isAuthorized, (req, res, next) => {
-  pool.query(
-    "insert into partner_preferred ( _email,_lowerAge, _higherAge,_lowerHeight,_higherHeight,_religion )  values (?,?,?,?,?,?) ",
-    [
-      req.params.email,
-      req.body.lowerage,
-      req.body.higherage,
-      req.body.lowerheight,
-      req.body.higherheight,
-      // req.body.country,
-      req.body.religion,
-      // req.body.languages,
-      // req.body.occupation,
-    ],
-    (error, results, fields) => {
-      const dat = {
-        email: req.params.email,
-        lowerage: req.body.lowerage,
-        higherage: req.body.higherage,
-        lowerheight: req.body.lowerheight,
-        higherheight: req.body.higherheight,
-        // country: req.body.country,
-        religion: req.body.religion,
-        // languages: req.body.languages,
-        // occupation: req.body.occupation,
-      };
-
-      if (error) {
-        console.log(`this is errror ${error}`);
-        return res.status(500).json({
-          status: "error",
-          message: " partner Perferrred Is not Added",
-          error: error,
-        });
-      } else {
-        return res.status(201).json({
-          status: "Success",
-          message: " partner Perferrred added successfully",
-          data: dat,
-        });
+    pool.query("SELECT * FROM partner_preferred WHERE _email = ?",
+    [req.params.email],
+    (error,user)=>{
+      console.log(`this is user : ${error}`)
+      if(user.length){
+        res.status(409).json({
+          status:"Failed",
+          message:"Partner preferred added already",
+          error
+        })
+      }
+      else{
+        pool.query(
+          "insert into partner_preferred ( _email,_lowerAge, _higherAge,_lowerHeight,_higherHeight,_gender,_religion )  values (?,?,?,?,?,?,?) ",
+          [
+            req.params.email,
+            req.body.lowerAge,
+            req.body.higherAge,
+            req.body.lowerHeight,
+            req.body.higherHeight,
+            req.body.gender,
+            // req.body.country,
+            req.body.religion,
+            // req.body.languages,
+            // req.body.occupation,
+          ],
+          (error, results, fields) => {
+            const data = {
+              email: req.params.email,
+              lowerage: req.body.lowerage,
+              higherage: req.body.higherage,
+              lowerheight: req.body.lowerheight,
+              higherheight: req.body.higherheight,
+              // country: req.body.country,
+              religion: req.body.religion,
+              // languages: req.body.languages,
+              // occupation: req.body.occupation,
+            };
+      
+            if (error) {
+              console.log(`this is errror ${error}`);
+              return res.status(500).json({
+                status: "error",
+                message: " partner Perferrred Is not Added",
+                error: error,
+              });
+            } else {
+              return res.status(201).json({
+                status: "Success",
+                message: " partner Perferrred added successfully",
+                data,
+              });
+            }
+          }
+        );
       }
     }
-  );
+    )
 });
 router.get("/:email", Auth, isAuthorized, (req, res, next) => {
   pool.query(
