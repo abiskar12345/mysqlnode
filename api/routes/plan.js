@@ -6,7 +6,7 @@ const isAuthorized = require("../auth/profileathoruize");
 
 
 
-router.post("",Auth,isAuthorized, (req, res, next) => {
+router.post("", (req, res, next) => {
     pool.query(
         'select *  from tbl_plan where _email = ?',
         [req.params.email],
@@ -24,7 +24,8 @@ router.post("",Auth,isAuthorized, (req, res, next) => {
                return date;
             }
             var date = new Date();
-            console.log(date.addDays(5))
+            
+           
 
 
             pool.query(
@@ -34,26 +35,53 @@ router.post("",Auth,isAuthorized, (req, res, next) => {
                 req.body.plan,
                 req.body.userid,
                 req.body.card_id,
-                Date.now() //according to plan
+                date.addDays(5) //according to plan
                 ],
                 (error, results, fields) => {
         
                     if (error) {
-                      res.status(500).json({
+                      return  res.status(500).json({
                         error:error,
                         message:"plan not sbscribed"
                       });
                     } 
-                    res.status(201).json({
-                      data:results
-                    });
-              
-                  }
-                );       
-        }
-      });
-  });
+                  
+                    pool.query(
+                      'update tbl_user set planExpire=?  where _email = ?',
+                        [
+                        date.addDays(5),
+                        req.body.email
+                      ]
+                        ,(err,result)=>{
+                          if(err){
+                            return  res.status(500).json({
+                            error:err
+                            
+                          });
 
+                         }
+                         
+                        });
+                        const plan ={
+                          email:req.body.email,
+                          planSuSCRIBED:req.body.plan,
+                        }
+
+
+                        res.status(201).json({
+                          status:"Success",
+                          message:"PLAN SSCRIBED",
+                          data:results  ,
+                          PLAN:plan   
+          
+                        
+                  
+                      });  
+                    
+                  });
+    }
+  });
+});
 
 
  module.exports = router;

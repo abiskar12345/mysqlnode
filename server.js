@@ -28,6 +28,9 @@ const http = require("http").Server(app);
 
 const socket = require("socket.io")(http);
 
+const socketEvents = require('./api/socket/socket'); 
+ 
+
 const port = process.env.PORT || 5000;
 
 // This map has all users connected

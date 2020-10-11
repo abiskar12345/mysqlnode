@@ -7,6 +7,8 @@ module.exports =(req, res, next) => {
           // Remove Bearer from string
           token = token.slice(7);
           console.log(token);
+          
+           
           jwt.verify(token,process.env.JWT_KEY, (err, decoded) => {
             if (err) {
               return res.json({
@@ -14,10 +16,10 @@ module.exports =(req, res, next) => {
                 message: "Invalid Token..."
               });  
             } else {
-              console.log(`inside auth : ${decoded.userId}`)
+             console.log(decoded)
               req.userId = decoded.userId;
-              console.log(req.userId)
               next();
+    
             }
           });
         } else {

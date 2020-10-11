@@ -7,13 +7,13 @@ const isAuthorized = require("../auth/profileathoruize");
 
 
 
-router.post("", Auth,isAuthorized,(req, res, next) => {
+router.post("", (req, res, next) => {
     pool.query(
-        'select * from liked_profile where _email =? ',
-        [ 
+        'SELECT count(_email) as count FROM liked_profile WHERE _likedprofiles= ? AND _email=?',
+        [ req.body.email, 
           req.body.likedprofiles, 
         ],
-        (error, results, fields) => {
+        (error, cont, fields) => {
     
           if (error) {
             res.status(500).json({
@@ -23,44 +23,46 @@ router.post("", Auth,isAuthorized,(req, res, next) => {
           } 
 
 
-          if(results._likedprofiles==req.body.email){
+     if(cont[0].count>0){
 
     pool.query(
-      'insert into liked_profile( _likedprofile ,_matchedprofile, _email) values(?,?,?) ',
+      'update liked_profile set  _matchedprofiles=? where _likedprofiles=? and _email=?',
         [ 
           req.body.email, 
           req.body.email,
           req.body.likedprofiles 
         ],
-        (error, results, fields) => {
+        (error, resl, fields) => {
     
           if (error) {
-            res.status(500).json({
+             return res.status(500).json({
               error:error,
-              message:"blockprofile not created"
+              message:"likeprofile not created"
             });
           } 
-          res.status(201).json({
-            data:results
-
-          });
+      
           pool.query(
-            'insert into liked_profile( _likedprofile ,_matchedprofile, _email) values(?,?,?) ',
+            'insert into liked_profile( _likedprofiles, _matchedprofiles, _email) values(?,?,?) ',
         [ 
           req.body.likedprofiles,
-    
-          req.body.likededprofiles, 
-          req.body.emai
+          req.body.likedprofiles, 
+          req.body.email
         ],
             (error, results, fields) => {
         
               if (error) {
-                res.status(500).json({
+               return  res.status(500).json({
+                  status: "failed",
+              
                   error:error,
-                  message:"blockprofile not created"
+                  message:"likeprofile not created"
                 });
               } 
               res.status(201).json({
+                status: "Success",
+                message: " likeprofile created successfully",
+                message:resl,
+                
                 data:results
               });
         
@@ -72,7 +74,7 @@ router.post("", Auth,isAuthorized,(req, res, next) => {
 
     }else{
         pool.query(
-            'insert into liked_profile( _likedprofiles,_email)  values(?,?) ',
+            'insert into liked_profile ( _likedprofiles, _email)  values(?,?) ',
             [ 
               req.body.likedprofiles,
         
@@ -82,11 +84,15 @@ router.post("", Auth,isAuthorized,(req, res, next) => {
         
               if (error) {
                 res.status(500).json({
+                  status:"error",
                   error:error,
                   message:"likefile not created"
                 });
               }else{
               res.status(201).json({
+                status: "Success",
+                message: " likeprofile created successfully",
+              
                 data:results
               });
             }
@@ -102,22 +108,23 @@ router.post("", Auth,isAuthorized,(req, res, next) => {
     
  });
 
- router.get("/:email",Auth,isAuthorized,(req,res,next)=>{
+ router.get("/:email",(req,res,next)=>{
   pool.query(
     'select * from liked_profile where _email = ?',
-    [req.body.email],
+    [req.params.email],
     function(error, user, fields) {
       if (error) {
         return res.status(409).json({
+             status: "error",
           message:error
         });
       } 
       res.status(201).json({
+        status: "Success",
         data:user
       });
 
     });
-
 });
 
 

@@ -3,12 +3,12 @@ const router = express.Router();
 const pool = require("../config/database");
 const Auth = require("../auth/authorization");
 const isAuthorized = require("../auth/profileathoruize");
-
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
+const { Console } = require("console");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads/");
@@ -45,14 +45,14 @@ router.post("/signup", (req, res, next) => {
         return res.status(409).json({
           status: "failed",
           message: "Mail already exists",
-        });
+        }); 
       } else {
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           if (err) {
             return res.status(500).json({
               error: err,
             });
-          } else {
+          } else {v
             pool.query(
               "insert into tbl_user(_username, _email,  _password)  values(?,?,?)",
               [req.body.username, req.body.email, hash],
@@ -62,7 +62,7 @@ router.post("/signup", (req, res, next) => {
                   res.status(500).send({
                     status: "failed",
                     msg: "Registration failed",
-                    error: err,
+                    error: error,
                   });
                 } else {
                   var token = crypto.randomBytes(16).toString("hex");
@@ -88,10 +88,10 @@ router.post("/signup", (req, res, next) => {
                     port: 465,
                     secure: true,
                     auth: {
-                      user: process.env.DOMAIN_EMAIL,
-                      pass: process.env.EMAIL_PASSWORD,
-                      // user: "admin@mahajodi.space",
-                      // pass: "!!mahajodi!!",
+                      // user: process.env.DOMAIN_EMAIL,
+                      // pass: process.env.EMAIL_PASSWORD,
+                      user: "admin@mahajodi.space",
+                      pass: "!!mahajodi!!",
                     },
                   });
                   var mailOptions = {
@@ -144,39 +144,7 @@ router.post("/signup", (req, res, next) => {
                       );
                     }
                   });
-                  // pool.query(
-                  //   'insert into blocked_profile( _email) values(?) ',
-                  //   [
-
-                  //     req.body.email,
-                  //   ],
-                  //   (error, results, fields) => {
-
-                  //     if (error) {
-                  //       res.status(500).json({
-                  //         error:error,
-                  //         message:"blockprofile not created"
-                  //       });
-                  //     }
-                  //   }
-                  // );
-
-                  // pool.query(
-                  //   'insert into liked_profile( _email)  values(?) ',
-                  //   [
-
-                  //     req.body.email,
-                  //   ],
-                  //   (error, results, fields) => {
-
-                  //     if (error) {
-                  //       res.status(500).json({
-                  //         error:error,
-                  //         message:"likeprofile not created"
-                  //       });
-                  //     }
-                  //   }
-                  // );
+                  
                 }
               }
             );
@@ -211,15 +179,12 @@ router.post("/login", (req, res, next) => {
         return res.status(401).json({
           status: "Failed",
           message: "User email doesn't exist",
+          error:error
         });
       }
       bcrypt.compare(req.body.password, user[0]._password, (err, result) => {
         console.log(result);
-        // if (err) {
-        //   return res.status(401).json({
-        //     message: "aexists",
-        //   });
-        // }
+      
         if (result) {
           console.log("Inside matching");
           const token = jwt.sign(
@@ -231,7 +196,7 @@ router.post("/login", (req, res, next) => {
               expiresIn: "2d",
             }
           );
-          const data = {
+          const dat = {
             id: user[0]._id,
             name: user[0]._name,
             email: user[0]._email,
@@ -246,12 +211,13 @@ router.post("/login", (req, res, next) => {
               email: user[0]._email,
               password: user[0]._password,
             },
-            data,
+            data:dat,
           });
         } else {
           res.status(401).json({
             status: "failed",
-            message: "Incorrect Password",
+            message: "Incorrect email or Password",
+            error:err
           });
         }
         // res.status(200).json({
@@ -285,7 +251,7 @@ router.post(
             (error, result, fields) => {
               if (error) {
                 res.status(500).json({
-                  err: error,
+                  error: error,
                 });
               } else {
                 return res.status(200).json({
@@ -305,6 +271,8 @@ router.patch("/:email", Auth, isAuthorized, (req, res, next) => {
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
+        status: "Error",
+      
         error: err,
       });
     } else {
@@ -313,12 +281,16 @@ router.patch("/:email", Auth, isAuthorized, (req, res, next) => {
         [req.body.name, req.body.password, req.params.email],
         (error, results, fields) => {
           if (error) {
-            res.status(500).json({
-              err: error,
+             return res.status(500).json({
+              status: "failed",
+              message: " personal details updated successfully",
+              error: error,
             });
           } else {
             return res.status(200).json({
-              message: "updated scessflly",
+              status: "Success",
+              message: " personal details updated successfully",
+              data:results
             });
           }
         }
@@ -364,7 +336,10 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
           }
           res.status(201).json({
             status: "Success",
+<<<<<<< HEAD
             messsage:"Successfully got partners",
+=======
+>>>>>>> acbd2f81406d64a7570514013c804839cb066890
             data: user,
           });
         }
@@ -372,4 +347,65 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
     }
   );
 });
+router.post('/checkusername',(req,res,next)=>{
+  const username = req.body.username;
+			if (username === "" || username === undefined || username === null) {
+				res.status(412).json({
+					error : true,
+					message : `username cant be empty.`
+        });
+      }else{
+        pool.query('SELECT count(_username) as count FROM tbl_user WHERE LOWER(_username) = ?',
+        [ username],function(err,result){
+          console.log(result);
+          if(err){
+            return res.status(409).json({
+              error:err
+            });
+                
+                
+              
+          }
+          if(result[0].count>0){
+            return res.status(409).json({
+              error:true,
+              stats:0,
+              message:"username not avaliable"
+            });
+            
+          }
+          else{
+            res.status(201).json({
+              stats:1,
+              message:"username  avaliable"
+            });
+
+          }
+
+
+        })
+      }
+
+});
+router.get("",(req,res,next)=>{
+  pool.query(
+    'SELECT a._name,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstats, b._langages FROM tbl_user as a JOIN personal_details as b ON a._email = b._email',
+    function(error, user, fields) {
+      if (error) {
+        return res.status(409).json({
+          status: "Error",
+         
+          data:error
+        });
+      } 
+      res.status(201).json({
+        status: "Success",
+       
+        data:user
+      });
+
+    });
+});
+
+
 module.exports = router;

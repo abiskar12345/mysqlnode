@@ -3,8 +3,6 @@ require("dotenv").config();
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-
-// const socketEvents = require('./api/socket/socket'); 
 const partnerperferredRoutes = require("./api/routes/partnerperferred");
 const personaldetailsRoutes = require("./api/routes/personaldetails");
 const userRoutes = require('./api/routes/user');
@@ -15,9 +13,7 @@ const planRoutes= require('./api/routes/plan');
 const chatRoutes = require('./api/routes/chatController');
 const locationRoutes= require('./api/routes/locationcontroller');
 const pool = require("./api/config/database");
-
- 
-
+const jwtLogin =require('./api/routes/jwtlogin');
 app.use(morgan("dev"));
 app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -100,7 +96,12 @@ app.use("/block", blockRoutes);
 app.use("/like", likeRoutes);
 app.use("/validate",verificationRoutes);
 app.use("/user/plan", planRoutes);
+<<<<<<< HEAD
 app.use("/chat", chatRoutes);
+=======
+app.use("/jwtlogin", jwtLogin);
+app.use("/khaltiverify", khaltiVerify);
+>>>>>>> acbd2f81406d64a7570514013c804839cb066890
 // app.use("/location", locationRoutes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,5 +119,10 @@ app.use((error, req, res, next) => {
     }
   });
 });
+
+
+
+
+
 
 module.exports = app;
