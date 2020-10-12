@@ -54,17 +54,13 @@ function onEachUserConnection(socket) {
     "User connected" +
       socket.id +
       ", query" +
-      JSON.stringify(socket.handshake)
+      JSON.stringify(socket.handshake.query)
   );
 
-  const fromUserEmail = socket.handshake.query.fromUserEmail;
+  const fromUserEmail = socket.handshake.query.from;
   console.log(`l******** ${fromUserEmail}`)
   let userMapVal = { socket_id: socket.id };
   addUserToMap(fromUserEmail, userMapVal);
-  // for (let value of userMap.values()) {
-  //   console.log(`usermapvalue: ${value.socket_id}`);
-  // }
-
   console.log(`socket id is: ${userMapVal.socket_id}`);
   printNumOfOnlineUsers();
   checkOnlineUser(socket);
@@ -110,7 +106,7 @@ function handleCheckOnlineUser(socket, user_data) {
 function getSocketIdFromMap(toUserEmail) {
   console.log("Geting socket id for touser " + toUserEmail);
   let userMapVal = userMap.get(toUserEmail);
-  console.log(`***${userMapVal.socket_id}**`);
+  // console.log(`***${userMapVal.socket_id}**`);
   if (userMapVal == undefined) {
     return undefined;
   }
