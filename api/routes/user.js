@@ -315,20 +315,21 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
         });
       }
       console.log(`this is preferred: ${perferance[0]._lowerHeight}`);
+      console.log(`this is preferred: ${perferance[0]._religion}`);
       pool.query(
         // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._age,b._height,b._country,b._religion,b._martialstatus, b._languages ,b._occupation FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._age BETWEEN ? AND ? OR b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._languages = ? OR b._occupation = ? ) And a._email NOT IN (SELECT _blockedprofiles FROM blocked_profile WHERE  _email = ?  IS NOT NULL )",
         // "SELECT  a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  ( b._height BETWEEN ? AND ? OR b._country = ? OR b._religion = ? OR b._profession = ? )",
-        "SELECT a._id, a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  b._height=  ? ",
+        "SELECT a._id, a._username,a._email ,b._gender,b._birthdate,b._height,b._country,b._religion,b._martialstatus,b._profession FROM tbl_user as a JOIN personal_details as b ON a._email = b._email WHERE  b._height=  ? AND b._religion=? AND b._email!=?",
         [
           // perferance[0]._lowerAge,
           // perferance[0]._higherAge,
           perferance[0]._lowerHeight,
           // perferance[0]._higherHeight,
           // perferance[0]._country,
-          // perferance[0]._religion,
+          perferance[0]._religion,
           // perferance[0]._languages,
           // perferance[0]._profession,
-          // req.params.email,
+          req.params.email,
         ],
         function (error, user, fields) {
           if (error) {
@@ -341,6 +342,7 @@ router.get("/:email", Auth, isAuthorized, (req, res, next) => {
           res.status(201).json({
             status: "Success",
             messsage:"Successfully got partners",
+            length:user.length,
             data: user,
           });
         }

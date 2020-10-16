@@ -11,9 +11,9 @@ class Socket{
     
     socketEvents(){
 
-        this.io.on('connection', (socket) => {
+        this.io.on('connect', (socket) => {
 
-            console.log("user connected to socket")
+            console.log(`${socket.handshake.query.currentEmail} connect to socket => ${socket.id}`)
             /**
             * get the user's Chat list
             */
@@ -46,28 +46,35 @@ class Socket{
             /**
             * send the messages to the user
             */
-            socket.on('add-message', async (data) => {
+            socket.on('send_message', async (data) => {
                 
                 if (data.message === '') {
                     
-                    this.io.to(socket.id).emit(`add-message-response`,`Message cant be empty`); 
+                    this.io.to(socket.id).emit(`send_message_response`,`Message cant be empty`); 
 
                 }else if(data.fromUserId === ''){
                     
-                    this.io.to(socket.id).emit(`add-message-response`,`Unexpected error, Login again.`); 
+                    this.io.to(socket.id).emit(`send_message_response`,`Unexpected error, Login again.`); 
 
                 }else if(data.toUserId === ''){
                     
-                    this.io.to(socket.id).emit(`add-message-response`,`Select a user to chat.`); 
+                    this.io.to(socket.id).emit(`send_message_response`,`Select a user to chat.`); 
 
                 }else{                    
-                    let toSocketId = data.toSocketId;
+                    let receiverEmail = data.receiver;
+                    console.log(`msg response : >>>>>> ${receiverEmail}`);
                     const sqlResult = await helper.insertMessages({
-                        fromUserId: data.fromUserId,
-                        toUserId: data.toUserId,
+                        senderEmail: data.sender,
+                        receiverEmail: data.receiver,
                         message: data.message
                     });
-                    this.io.to(toSocketId).emit(`add-message-response`, data); 
+                    if(sqlResult && sqlResult!=null){
+                        next();
+                    }else{
+                        console.log("message insertion failed");
+                    }
+            
+                    this.io.emit(`send_message_response`, data); 
                 }               
             });
 
@@ -108,10 +115,10 @@ class Socket{
     socketConfig(){
         this.io.use( async (socket, next) => {
             console.log("configuring")
-            let userId = socket.request._query['userId'];
-            console.log(`userid is :${userId}`)
+            let userEmail = socket.handshake.query.currentEmail;
+            console.log(`useremail is :${userEmail}`)
             let userSocketId = socket.id;          
-            const response = await helper.addSocketId( userId, userSocketId);
+            const response = await helper.addSocketId( userEmail, userSocketId);
             if(response &&  response !== null){
                 next();
             }else{
